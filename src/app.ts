@@ -27,8 +27,13 @@ app.post(
   postsController.create,
 );
 app.get("/posts", postsController.getAllPosts);
+app.delete(
+  '/posts/:postId', 
+  validateToken, 
+  postsController.deletePost
+)
 app.get("/posts/:id", postsController.getPost);
-
+app.put('/posts/:postId/edit', validateToken, postsController.editPost)
 app.post("/posts/:postId/upvote", validateToken, votesController.upvote);
 app.post("/posts/:postId/downvote", validateToken, votesController.downvote);
 
@@ -37,6 +42,7 @@ app.post(
   validateToken,
   commentsController.createComment,
 );
+
 
 app.delete(
   "/posts/:postId/comments/:commentId",

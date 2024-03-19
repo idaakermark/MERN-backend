@@ -144,3 +144,47 @@ export const getPost = async (req: Request, res: Response) => {
 
   res.status(200).json(post);
 };
+
+export const deletePost = async (req: Request, res: Response) => {
+  assertDefined(req.userId)
+  const { postId } = req.params 
+  const post = await Post.findById(postId)
+  console.log(post)
+  if (!post) { 
+    return res.status(404).json({ message: 'post not found' })
+  }
+  if (post.author.toString()!== req.userId) {
+    return res.status(403).json({ message: 'not authorized' })
+  }
+  try {
+    await post.deleteOne()
+    return res.status(200).json({ message: 'post deleted' })
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to delete post' })
+  }
+}
+
+export const editPost = async (req: Request, res: Response) => {
+  assertDefined(req.userId)
+  const { postId } = req.params
+  const { title, link, body } = req.body
+  const post = await Post.findById(postId)
+  if (!post) { 
+    return res.status(404).json({ message: 'post not found' })
+  }
+  if (post.author.toString()!== req.userId) {
+    return res.status(403).json({ message: 'not authorized' })
+  }
+
+  const edits = {
+    title, link, body
+  }
+  post.set(edits) 
+  try {
+    const editedPost = await post.save()
+    return res.status(200).json(editedPost)
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Failed to edit post' })
+  }
+}
